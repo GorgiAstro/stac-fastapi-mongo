@@ -3,7 +3,7 @@ import os
 import ssl
 from typing import Any, Dict, Set
 
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket
 from pymongo import MongoClient
 
 from stac_fastapi.types.config import ApiSettings
@@ -73,3 +73,6 @@ class AsyncMongoDBSettings(ApiSettings):
         """Create an asynchronous MongoDB client."""
         config = _mongodb_config()
         return AsyncIOMotorClient(config["uri"])
+
+    def create_fs(self, db, bucket_name: str, client: AsyncIOMotorClient) -> AsyncIOMotorGridFSBucket:
+        return AsyncIOMotorGridFSBucket(db, bucket_name=bucket_name)
