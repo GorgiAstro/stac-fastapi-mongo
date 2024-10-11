@@ -9,6 +9,7 @@ import attr
 from bson import ObjectId
 from pymongo.errors import BulkWriteError, PyMongoError
 
+from fastapi.responses import StreamingResponse
 from stac_fastapi.core import serializers
 from stac_fastapi.core.extensions import filter
 from stac_fastapi.core.utilities import bbox2polygon
@@ -24,6 +25,7 @@ from stac_fastapi.mongo.utilities import (
 from stac_fastapi.types.errors import ConflictError, NotFoundError
 from stac_fastapi.types.stac import Collection, Item
 
+from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 logger = logging.getLogger(__name__)
 
 NumType = Union[float, int]
@@ -31,6 +33,33 @@ NumType = Union[float, int]
 COLLECTIONS_INDEX = os.getenv("STAC_COLLECTIONS_INDEX", "collections")
 ITEMS_INDEX = os.getenv("STAC_ITEMS_INDEX", "items")
 DATABASE = os.getenv("MONGO_DB", "admin")
+FS_BUCKET = os.getenv("STAC_FILES_BUCKET", "fs")
+
+
+async def chunk_generator(grid_out):
+    while True:
+        # chunk = await grid_out.read(1024)
+        chunk = await grid_out.readchunk()
+        if not chunk:
+            break
+        yield chunk
+
+async def download_file(fs: AsyncIOMotorGridFSBucket, filename: str):
+    """Returns iterator over AsyncIOMotorGridOut object"""
+    grid_out = await fs.open_download_stream_by_name(filename)
+    return chunk_generator(grid_out)
+
+
+async def get_pic(filename: str):
+    print(f"Try to get pic {filename} from mongo")
+    client = AsyncSearchSettings().create_client
+    if client:
+        db = client[DATABASE]
+        fs = AsyncSearchSettings().create_fs(client=client, db=db, bucket_name=FS_BUCKET)
+        file = await download_file(fs, filename)
+        return StreamingResponse(file)
+    else:
+        print("Failed to create MongoDB client.")
 
 
 async def create_collection_index():

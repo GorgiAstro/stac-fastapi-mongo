@@ -27,6 +27,7 @@ from stac_fastapi.mongo.database_logic import (
     DatabaseLogic,
     create_collection_index,
     create_item_index,
+    get_pic
 )
 
 settings = AsyncMongoDBSettings()
@@ -85,6 +86,11 @@ async def _startup_event() -> None:
         await create_collection_index()
         await create_item_index()
 
+
+@app.get('/dl/{filename}')
+async def get_file(filename: str):
+    response = await get_pic(filename)
+    return response
 
 def run() -> None:
     """Run app from command line using uvicorn if available."""
