@@ -1,6 +1,14 @@
 version: '3.9'
 
 services:
+  stac-browser:
+    container_name: stac-browser
+    image: ghcr.io/radiantearth/stac-browser:latest
+    ports:
+      - 8080:8080
+    environment:
+      SB_catalogUrl: "http://localhost:8084"
+
   app-mongo:
     container_name: stac-fastapi-mongo
     image: stac-utils/stac-fastapi-mongo
@@ -14,37 +22,19 @@ services:
       - RELOAD=true
       - ENVIRONMENT=local
       - BACKEND=mongo
-      - MONGO_DB=stac
-      - MONGO_HOST=mongo
-      - MONGO_USER=root
-      - MONGO_PASS=example
+      - MONGO_DB=TUBIN
+      - MONGO_HOST=tubix20.space.tu-berlin.de
+      - MONGO_USER=guest
+      - MONGO_PASS=4m5076CHbL7QK4NL
       - MONGO_PORT=27017
+      - STAC_COLLECTIONS_INDEX=stac_collections
+      - STAC_ITEMS_INDEX=fm.georef.files
+      - STAC_FILES_BUCKET=fm.georef
+      - MONGO_CREATE_INDEXES=false # if true (or missing), creates collections and items indexes in the MongoDB at startup
     ports:
       - "8084:8084"
     volumes:
       - ./stac_fastapi:/app/stac_fastapi
       - ./scripts:/app/scripts
-    depends_on:
-      - mongo
     command:
-      bash -c "./scripts/wait-for-it-es.sh mongo-container:27017 && python -m stac_fastapi.mongo.app"
-
-  mongo:
-    container_name: mongo-container
-    image: mongo:7.0.5
-    hostname: mongo
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=example
-    ports:
-      - "27017:27017"
-
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - "8081:8081"
-    environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=example
-      - ME_CONFIG_MONGODB_URL=mongodb://root:example@mongo:27017/
+      bash -c "python -m stac_fastapi.mongo.app"
