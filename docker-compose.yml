@@ -28,7 +28,7 @@ services:
       - MONGO_PASS=4m5076CHbL7QK4NL
       - MONGO_PORT=27017
       - STAC_COLLECTIONS_INDEX=stac_collections
-      - STAC_ITEMS_INDEX=fm.georef.files
+      - STAC_ITEMS_INDEX=fm.georef.meta
       - STAC_FILES_BUCKET=fm.georef
       - MONGO_CREATE_INDEXES=false # if true (or missing), creates collections and items indexes in the MongoDB at startup
     ports:
