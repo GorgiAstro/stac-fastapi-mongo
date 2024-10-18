@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0/
 - Add support for python 3.12. [#22](https://github.com/Healy-Hyperspatial/stac-fastapi-mongo/pull/22)
 - Updated sfeos core to v3.0.0a0, fixed datetime functionality. [#23](https://github.com/Healy-Hyperspatial/stac-fastapi-mongo/pull/23)
 - Create indexes in MongoDB at startup only if environment variable MONGO_CREATE_INDEXES is set to "true" (default when the env variable is not set: "true"). [#31](https://github.com/Healy-Hyperspatial/stac-fastapi-mongo/pull/31)
-- utilities.py/parse_datestring method now returns datetime and not str, otherwise time filtering does not work for MongoDB databases using datetime objects (which is recommended over using date strings). [#32](https://github.com/Healy-Hyperspatial/stac-fastapi-mongo/pull/32)
 
 ### Fixed
 
